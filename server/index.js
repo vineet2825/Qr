@@ -4,10 +4,18 @@ const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const path = require('path');
 
+const fs = require('fs');
+
 dotenv.config();
 
 // Connect to Database
 connectDB();
+
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 const app = express();
 
@@ -26,9 +34,18 @@ app.use('/api/forms', require('./routes/formRoutes'));
 app.use('/api/submissions', require('./routes/submissionRoutes'));
 app.use('/api/upload', require('./routes/uploadRoutes'));
 
-app.get('/', (req, res) => {
-    res.send('QR Stock Management API is running...');
-});
+// Serve frontend in production
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, '../client/dist')));
+
+    app.get('*', (req, res) =>
+        res.sendFile(path.resolve(__dirname, '../', 'client', 'dist', 'index.html'))
+    );
+} else {
+    app.get('/', (req, res) => {
+        res.send('QR Stock Management API is running...');
+    });
+}
 
 const PORT = process.env.PORT || 5000;
 
