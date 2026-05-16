@@ -8,7 +8,9 @@ const connectDB = async () => {
         const conn = await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/qr_stock_db');
         console.log(`MongoDB Connected: ${conn.connection.host}`);
     } catch (error) {
-        console.error(`Error: ${error.message}`);
+        console.error(`FATAL ERROR: Could not connect to MongoDB.`);
+        console.error(`Error Message: ${error.message}`);
+        console.error(`Check if MONGO_URI is set correctly in your Environment Variables.`);
         process.exit(1);
     }
 };
